@@ -6,7 +6,7 @@ RUN apk --no-cache upgrade \
         php8-phar php8-tokenizer php8-dom php8-simplexml php8-xml php8-xmlwriter php8-ctype \
         php8-pecl-pcov@testing \
     && rm /etc/php8/conf.d/pcov.ini \
-    && ln -s /usr/bin/php8 /usr/bin/php
+    && ln -s /usr/bin/php8 /usr/bin/php \
     && adduser -u 82 -h /var/www -D -S -G www-data www-data \
     && mkdir -m 0777 /var/coverage
 
