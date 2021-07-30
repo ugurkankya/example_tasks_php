@@ -7,8 +7,7 @@ RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/ap
     && rm /etc/php8/conf.d/pcov.ini \
     && ln -s /usr/bin/php8 /usr/bin/php
 
-RUN addgroup -g 82 -S www-data \
-    && adduser -u 82 -h /var/www -D -S -G www-data www-data \
+RUN adduser -u 82 -h /var/www -D -S -G www-data www-data \
     && mkdir -m 0777 /var/coverage
 
 # php global setting
