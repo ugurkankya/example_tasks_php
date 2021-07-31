@@ -8,8 +8,8 @@ on completion.
 
 #### Setup
 
-    # build php container
-    docker-compose build php
+    # build container
+    docker-compose build
 
     # setup composer
     mkdir -m 0777 tasks/src/vendor
@@ -62,15 +62,18 @@ on completion.
 
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm fpm_status
 
-#### Convert docs/api.md to docs/swaggerui/api_spec.json
+#### Convert docs/api.md to docs/swaggerui/api_spec.json and docs/api.html
 
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm apib2swagger
+    docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm apib2html
 
 #### URLs
 
     http://127.0.0.1:8080/v1/tasks (API endpoint)
 
-    http://127.0.0.1:8080/docs/ (SwaggerUI)
+    http://127.0.0.1:8080/docs/swaggerui/ (SwaggerUI documentation)
+    http://127.0.0.1:8080/docs/api.html (API documentation)
+
     http://127.0.0.1:8080/coverage/ (code coverage)
     http://127.0.0.1:8025/ (MailHog, catches all outgoing emails)
 

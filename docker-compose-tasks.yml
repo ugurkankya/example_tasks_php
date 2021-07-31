@@ -104,6 +104,13 @@ services:
     command: -i api.md --prefer-reference --bearer-apikey -o swaggerui/api_spec.json
     volumes:
       - ./docs:/docs
+  apib2html:
+    image: humangeo/aglio
+    cap_drop: [all]
+    working_dir: /docs
+    command: -i api.md -o api.html
+    volumes:
+      - ./docs:/docs
 
 networks:
   backend:

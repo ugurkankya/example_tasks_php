@@ -16,6 +16,7 @@ services:
     stop_signal: SIGQUIT
   logger:
     build: ./docker/php-log-tail
+    image: example_tasks_logger
     volumes:
       - logs:/var/log/shared
   nginx:
@@ -27,7 +28,7 @@ services:
       - "127.0.0.1:8080:8080"
     volumes:
       - coverage-data:/var/www/coverage
-      - ./docs/swaggerui:/var/www/docs
+      - ./docs:/var/www/docs
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - backend
