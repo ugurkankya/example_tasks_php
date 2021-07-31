@@ -32,7 +32,8 @@ services:
       - backend
     restart: unless-stopped
   mysql:
-    image: mysql:8.0
+    build: ./docker/php80-alpine
+    image: example_tasks_mysql
     cap_drop: [all]
     cap_add: [chown, setuid, setgid, dac_override]
     volumes:

@@ -8,8 +8,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Build php container
+      run: docker-compose build php mysql logger
+
     - name: Build PHP docker image
       run: docker build docker/php80-alpine/ --tag localbuild/php80-alpine:latest
+
+    - name: test3
+      run: docker images
 
     - name: Trivy vulnerability scanner in repo mode
       uses: aquasecurity/trivy-action@master
@@ -24,14 +30,17 @@ jobs:
         image-ref: localbuild/php80-alpine:latest
         exit-code: 1
 
+    - name: test1
+      run: apt-cache search trivy
+
+    - name: test2
+      run: trivy
+
     - name: local PHP security checker
       run: find ./ -name "composer.lock" -not -path "*/vendor/*" | xargs -ti bin/localphpsecuritychecker-100 --path={}
 
     - name: Start mysql container
       run: docker-compose up -d mysql
-
-    - name: Build php container
-      run: docker-compose build php logger
 
     - name: Validate composer file
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm composer_validate
