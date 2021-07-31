@@ -48,6 +48,7 @@ services:
     restart: unless-stopped
   mailhog:
     build: docker/mailhog
+    image: example_tasks_mailhog
     cap_drop: [all]
     ports:
       - "127.0.0.1:8025:8025"
