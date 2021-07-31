@@ -79,7 +79,7 @@ jobs:
     - name: Run phpstan
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm phpstan
 
-    - name: Wait for database to be ready  
+    - name: Wait for database to be ready
       run: until docker-compose exec -T mysql mysql -uroot -proot -e "select now()"; do echo "waiting..."; sleep 1; done
 
     - name: Run update datebase
