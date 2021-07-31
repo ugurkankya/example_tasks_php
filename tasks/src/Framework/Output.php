@@ -23,6 +23,7 @@ class Output
 
     /**
      * @psalm-taint-escape html
+     * @psalm-taint-escape has_quotes
      */
     protected function escape(array $value): string
     {

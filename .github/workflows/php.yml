@@ -32,7 +32,7 @@ jobs:
       with:
         image-ref: example_tasks_mysql:latest
         ignore-unfixed: true
-        exit-code: 0
+        exit-code: 1
 
     - name: Trivy vulnerability scanner nginx
       uses: aquasecurity/trivy-action@master
