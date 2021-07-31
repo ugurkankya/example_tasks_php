@@ -2,7 +2,7 @@ version: "2.1"
 
 services:
   php:
-    build: ./docker/php80-alpine
+    build: ./docker/php80
     image: example_tasks_php
     cap_drop: [all]
     cap_add: [chown, setgid, setuid, kill]
@@ -19,7 +19,8 @@ services:
     volumes:
       - logs:/var/log/shared
   nginx:
-    image: nginx:stable-alpine
+    build: ./docker/nginx
+    image: example_tasks_nginx
     cap_drop: [all]
     cap_add: [chown, setuid, setgid, dac_override, net_bind_service]
     ports:
@@ -32,7 +33,7 @@ services:
       - backend
     restart: unless-stopped
   mysql:
-    build: ./docker/php80-alpine
+    build: ./docker/mysql
     image: example_tasks_mysql
     cap_drop: [all]
     cap_add: [chown, setuid, setgid, dac_override]
