@@ -67,9 +67,6 @@ jobs:
     - name: Create coverage directory
       run: mkdir -p tests/coverage && chmod 0777 tests/coverage
 
-    - name: Wait for database to be ready  
-      run: until docker-compose exec -T mysql mysql -uroot -proot -e "select now()"; do echo "waiting..."; sleep 1; done
-
     - name: Run phpcsfixer
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm phpcsfixer
       
@@ -81,6 +78,9 @@ jobs:
 
     - name: Run phpstan
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm phpstan
+
+    - name: Wait for database to be ready  
+      run: until docker-compose exec -T mysql mysql -uroot -proot -e "select now()"; do echo "waiting..."; sleep 1; done
 
     - name: Run update datebase
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm shell update_database.php
