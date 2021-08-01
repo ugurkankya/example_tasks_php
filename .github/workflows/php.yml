@@ -8,6 +8,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: check env
+      run: docker version && docker-compose version && docker images && cat /proc/cpuinfo && free
+
     - name: Build containers
       run: docker-compose build --parallel
 
