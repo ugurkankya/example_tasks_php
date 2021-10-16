@@ -16,6 +16,14 @@ class TasksRepository
         $this->app = $app;
     }
 
+    public function lockCron(string $identifier): bool
+    {
+        $statement = $this->app->getDatabase()->prepare('SELECT GET_LOCK(?, 1)');
+        $statement->execute(['cron_' . $identifier]);
+
+        return $statement->fetchColumn() === '1';
+    }
+
     public function taskExists(Customer $customer, int $taskId): bool
     {
         $query = '
@@ -27,32 +35,38 @@ class TasksRepository
         return !empty($statement->fetchColumn());
     }
 
-    public function createTask(Customer $customer, string $title, string $duedate): Task
+    public function createTask(Customer $customer, Task $task): int
     {
         $query = '
-            INSERT INTO task SET customer_id = ?, title = ?, duedate = ?, completed = 0
+            INSERT INTO task
+            SET customer_id = ?, title = ?, duedate = ?, completed = 0, last_updated_by = ?
         ';
         $db = $this->app->getDatabase();
         $statement = $db->prepare($query);
-        $statement->execute([$customer->id, $title, $duedate]);
+        $statement->execute([$customer->id, $task->title, $task->duedate, $task->last_updated_by]);
 
-        $task = new Task();
-        $task->id = (int) $db->lastInsertId();
-        $task->title = $title;
-        $task->duedate = $duedate;
-        $task->completed = false;
-
-        return $task;
+        return (int) $db->lastInsertId();
     }
 
     public function updateTask(Task $task): void
     {
-        $query = '
-            UPDATE task SET title = ?, duedate = ?, completed = ? WHERE id = ?
-        ';
         $db = $this->app->getDatabase();
+
+        $inTransaction = $db->inTransaction();
+
+        $inTransaction || $db->beginTransaction();
+
+        $query = '
+            UPDATE task
+            SET title = ?, duedate = ?, completed = ?, last_updated_by = ? WHERE id = ?
+        ';
         $statement = $db->prepare($query);
-        $statement->execute([$task->title, $task->duedate, (int) $task->completed, $task->id]);
+        $statement->execute([$task->title, $task->duedate, (int) $task->completed, $task->last_updated_by, $task->id]);
+
+        $query = 'REPLACE INTO task_queue_update SET task_id = ?, num_tries = 0';
+        $db->prepare($query)->execute([$task->id]);
+
+        $inTransaction || $db->commit();
     }
 
     public function deleteTask(int $taskId): void
@@ -63,17 +77,19 @@ class TasksRepository
         $this->app->getDatabase()->prepare($query)->execute([$taskId]);
     }
 
-    public function getTask(Customer $customer, int $taskId): ?Task
+    /**
+     * @return Task[]
+     */
+    public function getTasks(array $taskIds): array
     {
         $db = $this->app->getDatabase();
 
-        $query = '
-            SELECT id, title, duedate, completed FROM task WHERE customer_id = ? AND id = ?
-        ';
-        $statement = $db->prepare($query);
-        $statement->execute([$customer->id, $taskId]);
+        $ids = implode(',', array_map('intval', $taskIds));
 
-        return $statement->fetchObject(Task::class) ?: null;
+        $query = sprintf('SELECT id, title, duedate, completed, last_updated_by FROM task WHERE id IN (%s)', $ids);
+        $statement = $db->query($query);
+
+        return $statement->fetchAll(PDO::FETCH_CLASS, Task::class) ?: [];
     }
 
     /**
@@ -84,7 +100,7 @@ class TasksRepository
         $db = $this->app->getDatabase();
 
         $query = '
-            SELECT id, title, duedate, completed FROM task
+            SELECT id, title, duedate, completed, last_updated_by FROM task
             WHERE customer_id = ? AND completed = 0 AND duedate < ?
             ORDER BY duedate
             LIMIT 500
@@ -103,7 +119,7 @@ class TasksRepository
         $db = $this->app->getDatabase();
 
         $query = '
-            SELECT id, title, duedate, completed FROM task
+            SELECT id, title, duedate, completed, last_updated_by FROM task
             WHERE customer_id = ? AND completed = 1
             ORDER BY duedate DESC
             LIMIT 500
@@ -112,5 +128,34 @@ class TasksRepository
         $statement->execute([$customer->id]);
 
         return $statement->fetchAll(PDO::FETCH_CLASS, Task::class) ?: [];
+    }
+
+    /**
+     * @return Task[]
+     */
+    public function getTasksFromQueueUpdate(): array
+    {
+        $db = $this->app->getDatabase();
+
+        $query = 'SELECT task_id FROM task_queue_update WHERE num_tries < 20';
+        $taskIds = $db->query($query)->fetchAll(PDO::FETCH_COLUMN);
+
+        return $this->getTasks($taskIds);
+    }
+
+    public function updateTaskQueueUpdate(int $taskId): void
+    {
+        $query = 'UPDATE task_queue_update SET num_tries = num_tries + 1, last_try = now() WHERE task_id = ?';
+
+        $statement = $this->app->getDatabase()->prepare($query);
+        $statement->execute([$taskId]);
+    }
+
+    public function deleteTaskQueueUpdate(int $taskId): void
+    {
+        $query = 'DELETE FROM task_queue_update WHERE task_id = ?';
+
+        $statement = $this->app->getDatabase()->prepare($query);
+        $statement->execute([$taskId]);
     }
 }

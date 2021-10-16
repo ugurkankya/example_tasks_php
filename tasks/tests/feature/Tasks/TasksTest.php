@@ -22,7 +22,7 @@ class TasksTest extends TestCase
 
         $this->customer = new Customer();
         $this->customer->id = 42;
-        $this->customer->email = 'foo.bar@example.com';
+        $this->customer->email = 'foo.bar@invalid.local';
 
         $this->authorization = $authentication->getToken($this->customer, $config->privateKey);
     }

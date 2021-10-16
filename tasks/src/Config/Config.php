@@ -13,9 +13,9 @@ class Config
     public string $dbDatabase = 'tasks';
 
     public string $redisHost = 'redis';
-    public string $redisPort = '6379';
-    public string $redisEmailQueue = 'emails';
-    public string $redisGroup = 'mygroup';
+    public int $redisPort = 6379;
+    public string $redisStreamTasks = 'tasks';
+    //public string $redisGroup = 'mygroup';
 
     public string $publicKey = '-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAoCOg744fgP2MAf8BcoHg

@@ -7,7 +7,6 @@ use TaskService\Exceptions\HttpException;
 use TaskService\Framework\App;
 use TaskService\Models\Customer;
 use TaskService\Models\Task;
-use TaskService\Views\TaskCompletedEmail;
 
 class TasksController
 {
@@ -27,19 +26,34 @@ class TasksController
             throw new HttpException('invalid duedate', 400);
         }
 
+        $task = new Task();
+        $task->title = $title;
+        $task->duedate = $duedate;
+        $task->completed = false;
+        $task->last_updated_by = $customer->email;
+
         $repo = $this->app->getTasksRepository();
 
-        return $repo->createTask($customer, $title, $duedate);
+        $task->id = $repo->createTask($customer, $task);
+
+        return $task;
     }
 
-    public function updateTask(Customer $customer, Task $task): void
+    public function updateTask(Customer $customer, int $taskId, string $title, string $duedate, bool $completed): Task
     {
-        if (empty($task->title)) {
+        if (empty($title)) {
             throw new HttpException('missing title', 400);
         }
-        if (!DateTime::createFromFormat('Y-m-d', $task->duedate)) {
+        if (!DateTime::createFromFormat('Y-m-d', $duedate)) {
             throw new HttpException('invalid duedate', 400);
         }
+
+        $task = new Task();
+        $task->id = $taskId;
+        $task->title = $title;
+        $task->duedate = $duedate;
+        $task->completed = $completed;
+        $task->last_updated_by = $customer->email;
 
         $repo = $this->app->getTasksRepository();
 
@@ -49,13 +63,7 @@ class TasksController
 
         $repo->updateTask($task);
 
-        if ($task->completed) {
-            $email = new TaskCompletedEmail();
-            $email->customer = $customer;
-            $email->task = $task;
-
-            $this->app->getEmailService()->sendEmail($email);
-        }
+        return $task;
     }
 
     public function deleteTask(Customer $customer, int $taskId): void
@@ -93,12 +101,15 @@ class TasksController
     {
         $repo = $this->app->getTasksRepository();
 
-        $task = $repo->getTask($customer, $taskId);
-
-        if (empty($task)) {
+        if (!$repo->taskExists($customer, $taskId)) {
             throw new HttpException('task not found', 404);
         }
 
-        return $task;
+        $tasks = $repo->getTasks([$taskId]);
+        if (empty($tasks)) {
+            throw new HttpException('task not found', 404);
+        }
+
+        return $tasks[0];
     }
 }

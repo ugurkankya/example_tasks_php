@@ -4,7 +4,6 @@ namespace TaskService\Routes;
 
 use TaskService\Exceptions\HttpException;
 use TaskService\Framework\App;
-use TaskService\Models\Task;
 use Throwable;
 
 class HttpRoutes
@@ -48,9 +47,7 @@ class HttpRoutes
 
         $router->post('/v1/tasks', function () use ($app, $customer): void {
             $task = $app->getTasksController()->createTask(
-                $customer,
-                $app->getParam('title'),
-                $app->getParam('duedate')
+                $customer, $app->getParam('title'), $app->getParam('duedate')
             );
 
             $location = sprintf('/v1/tasks/%s', $task->id);
@@ -59,13 +56,10 @@ class HttpRoutes
         });
 
         $router->put('/v1/tasks/(\d+)', function (int $taskId) use ($app, $customer): void {
-            $task = new Task();
-            $task->id = $taskId;
-            $task->title = $app->getParam('title');
-            $task->duedate = $app->getParam('duedate');
-            $task->completed = (bool) $app->getParam('completed');
-
-            $app->getTasksController()->updateTask($customer, $task);
+            $task = $app->getTasksController()->updateTask(
+                $customer, $taskId, $app->getParam('title'), $app->getParam('duedate'),
+                (bool) $app->getParam('completed')
+            );
 
             $app->getOutput()->json($app->getTasksSerializer()->serializeTask($task), 200);
         });

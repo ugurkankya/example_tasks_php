@@ -82,7 +82,10 @@ class MigrationsRepositoryTest extends TestCase
 
     protected function createSqlFile(): void
     {
-        $query = 'INSERT INTO task SET customer_id = 42, title = "test", duedate = "2020-05-22", completed = 0;';
+        $query = '
+            INSERT INTO task SET customer_id = 42, title = "test", duedate = "2020-05-22",
+                last_updated_by = "foo@invalid.local", completed = 0;
+        ';
         file_put_contents('/tmp/migration.sql', $query);
 
         $this->assertFileIsReadable('/tmp/migration.sql');

@@ -11,4 +11,6 @@ class Task
     public string $duedate;
 
     public bool $completed;
+
+    public string $last_updated_by;
 }

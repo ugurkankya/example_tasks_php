@@ -16,7 +16,7 @@ class AuthenticationTest extends TestCase
 
         $customer = new Customer();
         $customer->id = 42;
-        $customer->email = 'foo.bar@example.com';
+        $customer->email = 'foo.bar@invalid.local';
 
         $authentication = new Authentication();
 
@@ -43,7 +43,7 @@ class AuthenticationTest extends TestCase
 
         $customer = new Customer();
         $customer->id = 42;
-        $customer->email = 'foo.bar@example.com';
+        $customer->email = 'foo.bar@invalid.local';
 
         $authentication = new Authentication();
 
@@ -61,7 +61,7 @@ class AuthenticationTest extends TestCase
 
         $customer = new Customer();
         $customer->id = 0;
-        $customer->email = 'foo.bar@example.com';
+        $customer->email = 'foo.bar@invalid.local';
 
         $authentication = new Authentication();
 
@@ -84,7 +84,7 @@ class AuthenticationTest extends TestCase
 
         $customer = new Customer();
         $customer->id = 42;
-        $customer->email = 'foo.bar@example.com';
+        $customer->email = 'foo.bar@invalid.local';
 
         $authentication = new Authentication();
 

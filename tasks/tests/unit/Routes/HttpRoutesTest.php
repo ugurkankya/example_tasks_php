@@ -176,7 +176,8 @@ class HttpRoutesTest extends TestCase
 
         $this->app->getTasksController()->expects($this->once())
             ->method('updateTask')
-            ->with($this->customer, $task);
+            ->with($this->customer, $task->id, $task->title, $task->duedate, $task->completed)
+            ->willReturn($task);
 
         $this->app->getTasksSerializer()->expects($this->once())
             ->method('serializeTask')

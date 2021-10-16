@@ -4,7 +4,6 @@ namespace TaskService\Test\Unit\Services;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use TaskService\Models\Customer;
 use TaskService\Models\Email;
 use TaskService\Models\Task;
 use TaskService\Services\EmailService;
@@ -13,20 +12,16 @@ use TaskService\Views\TaskCompletedEmail;
 
 class EmailServiceTest extends TestCase
 {
-    protected Customer $customer;
     protected Task $task;
 
     public function setUp(): void
     {
         require_once __DIR__ . '/ServicesMocks.php';
 
-        $this->customer = new Customer();
-        $this->customer->id = 42;
-        $this->customer->email = 'foo.receiver@example.com';
-
         $this->task = new Task();
         $this->task->id = 41;
         $this->task->title = 'test';
+        $this->task->last_updated_by = 'foo.receiver@invalid.local';
     }
 
     public function testSendEmail(): void
@@ -34,9 +29,9 @@ class EmailServiceTest extends TestCase
         ServicesMocks::$mailReturn = true;
 
         $email = new TaskCompletedEmail();
-        $email->customer = $this->customer;
-        $email->subject = 'Test Email';
-        $email->from = 'foo.sender@example.com';
+        $email->subject = 'Task #41 completed';
+        $email->from = 'foo.sender@invalid.local';
+        $email->to = 'foo.receiver@invalid.local';
         $email->task = $this->task;
 
         $service = new EmailService();
@@ -44,7 +39,7 @@ class EmailServiceTest extends TestCase
 
         $params = ServicesMocks::$mailParams;
 
-        $this->assertStringContainsString($this->customer->email, $params[0]);
+        $this->assertStringContainsString($this->task->last_updated_by, $params[0]);
         $this->assertSame('=?UTF-8?Q?Task #41 completed?=', $params[1]);
         $this->assertStringContainsString('Task <b>test</b> completed!', $params[2]);
         $this->assertSame($email->from, $params[3]['From']);
@@ -82,8 +77,8 @@ class EmailServiceTest extends TestCase
         ServicesMocks::$mailReturn = false;
 
         $email = new TaskCompletedEmail();
-        $email->customer = $this->customer;
         $email->task = $this->task;
+        $email->to = 'bar@invalid.local';
 
         $service = new EmailService();
         $service->sendEmail($email);

@@ -27,6 +27,9 @@ class TasksControllerTest extends TestCase
         ];
 
         $this->customer = new Customer();
+        $this->customer->id = 41;
+        $this->customer->email = 'foo@invalid.local';
+
         $this->app = $this->createConfiguredMock(App::class, $map);
     }
 
@@ -66,9 +69,14 @@ class TasksControllerTest extends TestCase
         $task->id = 42;
 
         $this->app->getTasksRepository()->expects($this->once())
-            ->method('getTask', 42)
+            ->method('taskExists')
             ->with($this->customer, 42)
-            ->willReturn($task);
+            ->willReturn(true);
+
+        $this->app->getTasksRepository()->expects($this->once())
+            ->method('getTasks')
+            ->with([42])
+            ->willReturn([$task]);
 
         $controller = new TasksController($this->app);
 
@@ -82,9 +90,32 @@ class TasksControllerTest extends TestCase
         $this->expectExceptionMessage('task not found');
 
         $this->app->getTasksRepository()->expects($this->once())
-            ->method('getTask', 42)
+            ->method('taskExists')
             ->with($this->customer, 42)
-            ->willReturn(null);
+            ->willReturn(true);
+
+        $this->app->getTasksRepository()->expects($this->once())
+            ->method('getTasks')
+            ->with([42])
+            ->willReturn([]);
+
+        $controller = new TasksController($this->app);
+        $controller->getTask($this->customer, 42);
+    }
+
+    public function testGetTaskNotFoundForCustomer(): void
+    {
+        $this->expectException(HttpException::class);
+        $this->expectExceptionCode(404);
+        $this->expectExceptionMessage('task not found');
+
+        $this->app->getTasksRepository()->expects($this->once())
+            ->method('taskExists')
+            ->with($this->customer, 42)
+            ->willReturn(false);
+
+        $this->app->getTasksRepository()->expects($this->never())
+            ->method('getTasks');
 
         $controller = new TasksController($this->app);
         $controller->getTask($this->customer, 42);
@@ -126,15 +157,22 @@ class TasksControllerTest extends TestCase
     public function testCreateTask(): void
     {
         $task = new Task();
+        $task->title = 'Test';
+        $task->duedate = '2020-05-22';
+        $task->completed = false;
+        $task->last_updated_by = $this->customer->email;
 
         $this->app->getTasksRepository()->expects($this->once())
             ->method('createTask')
-            ->with($this->customer, 'Test', '2020-05-22')
-            ->willReturn($task);
+            ->with($this->customer, $task)
+            ->willReturn(42);
+
+        $task2 = clone $task;
+        $task2->id = 42;
 
         $controller = new TasksController($this->app);
 
-        $this->assertSame($task, $controller->createTask($this->customer, 'Test', '2020-05-22'));
+        $this->assertEquals($task2, $controller->createTask($this->customer, 'Test', '2020-05-22'));
     }
 
     public function testCreateTaskMissingTitle(): void
@@ -164,9 +202,9 @@ class TasksControllerTest extends TestCase
         $task->title = 'test';
         $task->duedate = '2020-05-22';
         $task->completed = true;
+        $task->last_updated_by = $this->customer->email;
 
         $email = new TaskCompletedEmail();
-        $email->customer = $this->customer;
         $email->task = $task;
 
         $this->app->getTasksRepository()->expects($this->once())
@@ -178,12 +216,8 @@ class TasksControllerTest extends TestCase
             ->method('updateTask')
             ->with($task);
 
-        $this->app->getEmailService()->expects($this->once())
-            ->method('sendEmail')
-            ->with($email);
-
         $controller = new TasksController($this->app);
-        $controller->updateTask($this->customer, $task);
+        $controller->updateTask($this->customer, $task->id, $task->title, $task->duedate, $task->completed);
     }
 
     public function testUpdateTaskInvalidTitle(): void
@@ -192,14 +226,11 @@ class TasksControllerTest extends TestCase
         $this->expectExceptionCode(400);
         $this->expectExceptionMessage('missing title');
 
-        $task = new Task();
-
         $this->app->getTasksRepository()->expects($this->never())
-            ->method('updateTask')
-            ->with($task);
+            ->method('updateTask');
 
         $controller = new TasksController($this->app);
-        $controller->updateTask($this->customer, $task);
+        $controller->updateTask($this->customer, 42, '', '2020-05-22', false);
     }
 
     public function testUpdateTaskInvalidDuedate(): void
@@ -208,16 +239,11 @@ class TasksControllerTest extends TestCase
         $this->expectExceptionCode(400);
         $this->expectExceptionMessage('invalid duedate');
 
-        $task = new Task();
-        $task->title = 'test';
-        $task->duedate = '';
-
         $this->app->getTasksRepository()->expects($this->never())
-            ->method('updateTask')
-            ->with($task);
+            ->method('updateTask');
 
         $controller = new TasksController($this->app);
-        $controller->updateTask($this->customer, $task);
+        $controller->updateTask($this->customer, 42, 'test', '', false);
     }
 
     public function testUpdateTaskNotFound(): void
@@ -226,21 +252,15 @@ class TasksControllerTest extends TestCase
         $this->expectExceptionCode(404);
         $this->expectExceptionMessage('task not found');
 
-        $task = new Task();
-        $task->id = 42;
-        $task->title = 'test';
-        $task->duedate = '2020-05-22';
-
         $this->app->getTasksRepository()->expects($this->once())
             ->method('taskExists')
-            ->with($this->customer, $task->id)
+            ->with($this->customer, 42)
             ->willReturn(false);
 
         $this->app->getTasksRepository()->expects($this->never())
-            ->method('updateTask')
-            ->with($task);
+            ->method('updateTask');
 
         $controller = new TasksController($this->app);
-        $controller->updateTask($this->customer, $task);
+        $controller->updateTask($this->customer, 42, 'test', '2020-05-22', false);
     }
 }
