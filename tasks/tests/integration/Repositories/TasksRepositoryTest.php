@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use TaskService\Framework\App;
 use TaskService\Models\Customer;
 use TaskService\Models\Task;
+use TaskService\Repositories\TasksRepository;
 
 class TasksRepositoryTest extends TestCase
 {
@@ -44,6 +45,20 @@ class TasksRepositoryTest extends TestCase
     public function tearDown(): void
     {
         $this->app->getDatabase()->rollBack();
+    }
+
+    public function testLockCron(): void
+    {
+        $statement = $this->app->getDatabase()->query('SELECT CONNECTION_ID() as id');
+        $expected = $statement->fetch(PDO::FETCH_ASSOC);
+
+        $repo = new TasksRepository($this->app);
+        $this->assertTrue($repo->lockCron('foobar'));
+
+        $statement = $this->app->getDatabase()->query("SELECT IS_USED_LOCK('cron_foobar') as id");
+        $actual = $statement->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertEquals($expected, $actual);
     }
 
     public function testCreateTask(): void
@@ -126,5 +141,76 @@ class TasksRepositoryTest extends TestCase
         $this->assertEquals([$this->task], $repo->getTasks([$this->task->id]));
 
         $this->assertEmpty($repo->getTasks([42]));
+    }
+
+    public function testGetTasksFromQueue(): void
+    {
+        $repo = $this->app->getTasksRepository();
+
+        $this->task->id = $repo->createTask($this->customer, $this->task);
+
+        $this->assertTrue(in_array($this->task, $repo->getTasksFromQueue()));
+
+        $repo->deleteTaskQueue($this->task->id);
+
+        $this->assertFalse(in_array($this->task, $repo->getTasksFromQueue()));
+    }
+
+    public function testCreateTaskQueue(): void
+    {
+        $db = $this->app->getDatabase();
+        $repo = $this->app->getTasksRepository();
+
+        $this->task->id = $repo->createTask($this->customer, $this->task);
+
+        $query = 'SELECT num_tries FROM task_queue WHERE task_id = ?';
+
+        $repo->updateTaskQueue($this->task->id);
+
+        $statement = $db->prepare($query);
+        $statement->execute([$this->task->id]);
+        $this->assertSame('1', $statement->fetchColumn());
+
+        $repo->updateTaskQueue($this->task->id);
+        $statement = $db->prepare($query);
+        $statement->execute([$this->task->id]);
+        $this->assertSame('2', $statement->fetchColumn());
+    }
+
+    public function testUpdateTaskQueue(): void
+    {
+        $db = $this->app->getDatabase();
+        $repo = $this->app->getTasksRepository();
+
+        $this->task->id = 42;
+        $repo->updateTask($this->task);
+
+        $query = 'SELECT num_tries FROM task_queue WHERE task_id = ?';
+
+        $repo->updateTaskQueue($this->task->id);
+
+        $statement = $db->prepare($query);
+        $statement->execute([$this->task->id]);
+        $this->assertSame('1', $statement->fetchColumn());
+
+        $repo->updateTaskQueue($this->task->id);
+        $statement = $db->prepare($query);
+        $statement->execute([$this->task->id]);
+        $this->assertSame('2', $statement->fetchColumn());
+    }
+
+    public function testDeleteTaskQueue(): void
+    {
+        $db = $this->app->getDatabase();
+        $repo = $this->app->getTasksRepository();
+
+        $actual = $repo->createTask($this->customer, $this->task);
+
+        $repo->deleteTaskQueue($actual);
+
+        $query = 'SELECT * FROM task_queue WHERE task_id = ?';
+        $statement = $db->prepare($query);
+        $statement->execute([$actual]);
+        $this->assertSame(false, $statement->fetch());
     }
 }

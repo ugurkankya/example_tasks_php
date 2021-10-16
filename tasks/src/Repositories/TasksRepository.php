@@ -37,15 +37,26 @@ class TasksRepository
 
     public function createTask(Customer $customer, Task $task): int
     {
+        $db = $this->app->getDatabase();
+
+        $inTransaction = $db->inTransaction();
+        $inTransaction || $db->beginTransaction();
+
         $query = '
-            INSERT INTO task
-            SET customer_id = ?, title = ?, duedate = ?, completed = 0, last_updated_by = ?
+            INSERT INTO task SET customer_id = ?, title = ?, duedate = ?, completed = 0, last_updated_by = ?
         ';
         $db = $this->app->getDatabase();
         $statement = $db->prepare($query);
         $statement->execute([$customer->id, $task->title, $task->duedate, $task->last_updated_by]);
 
-        return (int) $db->lastInsertId();
+        $id = (int) $db->lastInsertId();
+
+        $query = 'INSERT INTO task_queue SET task_id = ?, num_tries = 0';
+        $db->prepare($query)->execute([$id]);
+
+        $inTransaction || $db->commit();
+
+        return $id;
     }
 
     public function updateTask(Task $task): void
@@ -53,17 +64,15 @@ class TasksRepository
         $db = $this->app->getDatabase();
 
         $inTransaction = $db->inTransaction();
-
         $inTransaction || $db->beginTransaction();
 
         $query = '
-            UPDATE task
-            SET title = ?, duedate = ?, completed = ?, last_updated_by = ? WHERE id = ?
+            UPDATE task SET title = ?, duedate = ?, completed = ?, last_updated_by = ? WHERE id = ?
         ';
         $statement = $db->prepare($query);
         $statement->execute([$task->title, $task->duedate, (int) $task->completed, $task->last_updated_by, $task->id]);
 
-        $query = 'REPLACE INTO task_queue_update SET task_id = ?, num_tries = 0';
+        $query = 'REPLACE INTO task_queue SET task_id = ?, num_tries = 0';
         $db->prepare($query)->execute([$task->id]);
 
         $inTransaction || $db->commit();
@@ -133,27 +142,27 @@ class TasksRepository
     /**
      * @return Task[]
      */
-    public function getTasksFromQueueUpdate(): array
+    public function getTasksFromQueue(): array
     {
         $db = $this->app->getDatabase();
 
-        $query = 'SELECT task_id FROM task_queue_update WHERE num_tries < 20';
+        $query = 'SELECT task_id FROM task_queue WHERE num_tries < 20';
         $taskIds = $db->query($query)->fetchAll(PDO::FETCH_COLUMN) ?: [];
 
         return $this->getTasks($taskIds);
     }
 
-    public function updateTaskQueueUpdate(int $taskId): void
+    public function updateTaskQueue(int $taskId): void
     {
-        $query = 'UPDATE task_queue_update SET num_tries = num_tries + 1, last_try = now() WHERE task_id = ?';
+        $query = 'UPDATE task_queue SET num_tries = num_tries + 1, last_try = now() WHERE task_id = ?';
 
         $statement = $this->app->getDatabase()->prepare($query);
         $statement->execute([$taskId]);
     }
 
-    public function deleteTaskQueueUpdate(int $taskId): void
+    public function deleteTaskQueue(int $taskId): void
     {
-        $query = 'DELETE FROM task_queue_update WHERE task_id = ?';
+        $query = 'DELETE FROM task_queue WHERE task_id = ?';
 
         $statement = $this->app->getDatabase()->prepare($query);
         $statement->execute([$taskId]);

@@ -19,8 +19,8 @@ if (!$app->getTasksRepository()->lockCron(basename(__FILE__))) {
 
 $repo = $app->getTasksRepository();
 
-foreach ($repo->getTasksFromQueueUpdate() as $task) {
-    $repo->updateTaskQueueUpdate($task->id);
+foreach ($repo->getTasksFromQueue() as $task) {
+    $repo->updateTaskQueue($task->id);
 
     // TODO optimize
     if ($task->completed) {
@@ -47,5 +47,5 @@ foreach ($repo->getTasksFromQueueUpdate() as $task) {
         throw new Exception('redis error: ' . (string) $redis->getLastError());
     }
 
-    $repo->deleteTaskQueueUpdate($task->id);
+    $repo->deleteTaskQueue($task->id);
 }
