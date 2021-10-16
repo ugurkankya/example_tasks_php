@@ -3,6 +3,7 @@
 namespace TaskService\Framework;
 
 use PDO;
+use Redis;
 use TaskService\Config\Config;
 use TaskService\Controllers\TasksController;
 use TaskService\Repositories\MigrationsRepository;
@@ -75,6 +76,20 @@ class App
         }
 
         return $this->container['database'];
+    }
+
+    public function getRedis(): Redis
+    {
+        if (!isset($this->container['redis'])) {
+            $config = $this->getConfig();
+
+            $redis = new Redis();
+            $redis->connect($config->redisHost, $config->redisPort, 3);
+
+            $this->container['redis'] = $redis;
+        }
+
+        return $this->container['redis'];
     }
 
     public function getMigrationsRepository(): MigrationsRepository

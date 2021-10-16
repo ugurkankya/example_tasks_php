@@ -12,6 +12,11 @@ class Config
     public string $dbPassword = 'root';
     public string $dbDatabase = 'tasks';
 
+    public string $redisHost = 'redis';
+    public string $redisPort = '6379';
+    public string $redisEmailQueue = 'emails';
+    public string $redisGroup = 'mygroup';
+
     public string $publicKey = '-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAoCOg744fgP2MAf8BcoHg
 11Ldd9YlAOT14qvFvtlyxXdR57SYwVkkfZCPvJ9ctj1wa9xUmF+/ClPJYFb5Juzj
