@@ -9,10 +9,11 @@ on completion.
 #### Setup
 
     # build container
-    docker-compose build --pull --no-cache
+    docker-compose build --pull --no-cache --parallel
 
     # setup composer
     mkdir -m 0777 tasks/src/vendor
+    chmod 0666 tasks/composer.lock
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm composer
 
     # start containers
@@ -72,8 +73,13 @@ on completion.
 
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm fpm_status
 
+#### Container scanning
+
+    trivy image --light example_tasks_php:latest
+
 #### Convert docs/api.md to docs/swaggerui/api_spec.json and docs/api.html
 
+    chmod 0666 docs/swaggerui/api_spec.json docs/api.html
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm apib2swagger
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm apib2html
 
