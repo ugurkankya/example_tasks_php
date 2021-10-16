@@ -47,6 +47,16 @@ services:
     networks:
       - backend
     restart: unless-stopped
+redis:
+    image: redis:6.2-alpine
+    # see https://raw.githubusercontent.com/redis/redis/6.2/redis.conf
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128M"]
+    cap_drop: [all]
+    cap_add: [setuid, setgid]
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
   mailhog:
     build: docker/mailhog
     image: example_tasks_mailhog
@@ -63,4 +73,5 @@ networks:
 volumes:
   logs:
   mysql-data:
+  redis-data:
   coverage-data:
