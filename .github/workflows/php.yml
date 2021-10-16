@@ -89,7 +89,7 @@ jobs:
       run: mkdir -p tests/coverage && chmod 0777 tests/coverage
 
     - name: Run line length check
-      run: ! grep --include="*.php" --exclude-dir=vendor -rn ".\{121\}" tasks
+      run: sh -c '! grep --include="*.php" --exclude-dir=vendor -rn ".\{121\}" tasks'
 
     - name: Run phpcsfixer
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm phpcsfixer
