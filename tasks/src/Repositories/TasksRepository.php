@@ -138,7 +138,7 @@ class TasksRepository
         $db = $this->app->getDatabase();
 
         $query = 'SELECT task_id FROM task_queue_update WHERE num_tries < 20';
-        $taskIds = $db->query($query)->fetchAll(PDO::FETCH_COLUMN);
+        $taskIds = $db->query($query)->fetchAll(PDO::FETCH_COLUMN) ?: [];
 
         return $this->getTasks($taskIds);
     }
