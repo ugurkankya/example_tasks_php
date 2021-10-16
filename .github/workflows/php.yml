@@ -77,7 +77,7 @@ jobs:
       run: find ./ -name "composer.lock" -not -path "*/vendor/*" | xargs -ti bin/localphpsecuritychecker-120 --path={}
 
     - name: Start mysql container
-      run: docker-compose up -d mysql
+      run: docker-compose up -d mysql redis
 
     - name: Validate composer file
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm composer_validate
