@@ -109,6 +109,9 @@ on completion.
     curl -i -X GET -H "Authorization: ${TOKEN}" "${BASE}/v1/tasks/1"
     curl -i -X DELETE -H "Authorization: ${TOKEN}" "${BASE}/v1/tasks/1"
 
+    # process task queue
+    docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm shell task_queue.php
+
 Design principles
 
     no full-stack framework (frameworkless), best performance, less complexity, more flexibility, minimum amount of code

@@ -4,7 +4,7 @@ RUN apk --no-cache upgrade \
     && echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk --no-cache add php8 php8-fpm php8-curl php8-pdo_mysql php8-json php8-mbstring php8-opcache \
         php8-phar php8-tokenizer php8-dom php8-simplexml php8-xml php8-xmlwriter php8-ctype \
-        php8-pecl-redis php8-pecl-pcov@testing \
+        php8-pecl-redis php8-pecl-pcov@testing msmtp \
     && rm /etc/php8/conf.d/pcov.ini \
     && ln -s /usr/bin/php8 /usr/bin/php \
     && adduser -u 82 -h /var/www -D -S -G www-data www-data \
@@ -15,6 +15,9 @@ COPY ./php.ini /etc/php8/php.ini
 
 # php fpm settings
 COPY ./php-fpm.conf /etc/php8/php-fpm.d/www.conf
+
+# msmtp settings
+COPY msmtp.conf /etc/msmtprc
 
 WORKDIR /var/www
 

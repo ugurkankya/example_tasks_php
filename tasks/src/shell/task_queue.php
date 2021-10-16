@@ -26,7 +26,7 @@ foreach ($repo->getTasksFromQueue() as $task) {
     if ($task->completed) {
         $email = new TaskCompletedEmail();
         $email->task = $task;
-        $email->subject = sprintf($email->subject, $email->task->id);
+        $email->subject = sprintf($email->subject, $task->id);
         $email->to = $task->last_updated_by;
 
         $app->getEmailService()->sendEmail($email);
