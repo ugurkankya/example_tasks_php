@@ -42,7 +42,7 @@ foreach ($repo->getTasksFromQueue() as $task) {
     // * = auto generated id
     // @see https://github.com/phpredis/phpredis#xadd
     // @see https://redis.io/commands/XADD
-    $result = $redis->xAdd($stream, '*', $serializer->serializeTask($task));
+    $result = $redis->xAdd($stream, '*', json_encode($serializer->serializeTask($task)));
     if (empty($result)) {
         throw new Exception('redis error: ' . (string) $redis->getLastError());
     }
