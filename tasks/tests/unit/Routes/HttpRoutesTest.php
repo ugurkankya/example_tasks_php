@@ -172,7 +172,9 @@ class HttpRoutesTest extends TestCase
             ->willReturnMap($this->getHeaders('PUT', '/v1/tasks/123'));
 
         $this->app->method('getParam')
-            ->willReturnMap([['title', $task->title], ['duedate', $task->duedate], ['completed', (string) $task->completed]]);
+            ->willReturnMap([
+                ['title', $task->title], ['duedate', $task->duedate], ['completed', (string) $task->completed],
+            ]);
 
         $this->app->getTasksController()->expects($this->once())
             ->method('updateTask')

@@ -76,7 +76,7 @@ jobs:
     - name: local PHP security checker
       run: find ./ -name "composer.lock" -not -path "*/vendor/*" | xargs -ti bin/localphpsecuritychecker-120 --path={}
 
-    - name: Start mysql container
+    - name: Start mysql and redis container
       run: docker-compose up -d mysql redis
 
     - name: Validate composer file
@@ -87,6 +87,9 @@ jobs:
 
     - name: Create coverage directory
       run: mkdir -p tests/coverage && chmod 0777 tests/coverage
+
+    - name: Run line length check
+      run: ! grep --include="*.php" --exclude-dir=vendor -rn ".\{121\}" tasks
 
     - name: Run phpcsfixer
       run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm phpcsfixer
