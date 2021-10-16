@@ -9,7 +9,7 @@ on completion.
 #### Setup
 
     # build container
-    docker-compose build
+    docker-compose build --pull --no-cache
 
     # setup composer
     mkdir -m 0777 tasks/src/vendor
@@ -35,6 +35,16 @@ on completion.
 
     # start mysql client
     docker-compose exec mysql mysql -u root -proot tasks
+
+    # start redis client
+    docker-compose exec redis redis-cli
+    docker-compose exec redis redis-cli INFO memory | grep -E "used_memory|maxmemory|frag" | grep -E "human|bytes"
+    docker-compose exec redis redis-cli INFO clients
+    docker-compose exec redis redis-cli XINFO STREAM orders
+    docker-compose exec redis redis-cli XINFO GROUPS orders
+    docker-compose exec redis redis-cli XINFO CONSUMERS orders mygroup
+    docker-compose exec redis redis-cli XPENDING orders mygroup
+    docker-compose exec redis redis-cli SLOWLOG GET
 
     # show mysql query log
     docker-compose exec mysql sh -c "tail -f /tmp/mysql.log"

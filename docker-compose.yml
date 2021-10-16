@@ -47,9 +47,9 @@ services:
     networks:
       - backend
     restart: unless-stopped
-redis:
-    image: redis:6.2-alpine
+  redis:
     # see https://raw.githubusercontent.com/redis/redis/6.2/redis.conf
+    image: redis:6.2-alpine
     command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128M"]
     cap_drop: [all]
     cap_add: [setuid, setgid]

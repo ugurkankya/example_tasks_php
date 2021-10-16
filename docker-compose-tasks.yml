@@ -61,7 +61,7 @@ services:
     image: example_tasks_php
     cap_drop: [all]
     working_dir: /var/www
-    entrypoint: php -dmemory_limit=192M /usr/local/sbin/phpstan-01294.phar analyze --no-progress
+    entrypoint: php -dmemory_limit=160M /usr/local/sbin/phpstan-01299.phar analyze --no-progress
     volumes:
       - ./tasks/:/var/www
       - ./bin:/usr/local/sbin
@@ -98,14 +98,16 @@ services:
       - ./tasks/:/var/www
       - ./bin:/usr/local/sbin
   apib2swagger:
-    image: kminami/apib2swagger
+    build: ./docker/apib2swagger
+    image: example_tasks_apib2swagger
     cap_drop: [all]
     working_dir: /docs
     command: -i api.md --prefer-reference --bearer-apikey -o swaggerui/api_spec.json
     volumes:
       - ./docs:/docs
   apib2html:
-    image: humangeo/aglio
+    build: ./docker/apib2html
+    image: example_tasks_apib2html
     cap_drop: [all]
     working_dir: /docs
     command: -i api.md -o api.html
