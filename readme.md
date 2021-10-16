@@ -13,7 +13,7 @@ on completion.
 
     # setup composer
     mkdir -m 0777 tasks/src/vendor
-    chmod 0666 tasks/composer.lock
+    chmod 0666 tasks/composer.lock tasks/composer.json
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm composer
 
     # start containers
