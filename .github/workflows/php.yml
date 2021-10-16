@@ -74,7 +74,7 @@ jobs:
         exit-code: 1
 
     - name: local PHP security checker
-      run: find ./ -name "composer.lock" -not -path "*/vendor/*" | xargs -ti bin/localphpsecuritychecker-100 --path={}
+      run: find ./ -name "composer.lock" -not -path "*/vendor/*" | xargs -ti bin/localphpsecuritychecker-120 --path={}
 
     - name: Start mysql container
       run: docker-compose up -d mysql
