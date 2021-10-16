@@ -12,7 +12,7 @@ jobs:
       run: docker version && docker-compose version && docker images && cat /proc/cpuinfo && free
 
     - name: Build containers
-      run: docker-compose build --parallel
+      run: docker-compose -f docker-compose.yml -f docker-compose-tasks.yml build --parallel
 
     - name: Show local docker images
       run: docker images
