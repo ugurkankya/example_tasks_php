@@ -37,13 +37,12 @@ class RedisServiceTest extends TestCase
 
         $redis = $this->app->getRedis();
 
-        $service = new RedisService($this->app);
-        $messageId = $service->addMessageToStream($stream, ['foo' => 'bar']);
-
+        $messageId = $redis->xAdd($stream, '*', ['foo' => 'bar']);
         $actual = $redis->xRevRange($stream, '+', '-', 1);
 
-        $this->assertEquals([$messageId => ['data' => json_encode(['foo' => 'bar'])]], $actual);
+        $this->assertEquals([$messageId => ['foo' => 'bar']], $actual);
 
+        $service = new RedisService($this->app);
         $service->removeMessageFromStream($stream, 'mygroup', $messageId);
 
         $actual = $redis->xRevRange($stream, '+', '-', 1);
