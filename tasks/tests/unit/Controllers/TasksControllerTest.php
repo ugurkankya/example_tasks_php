@@ -9,7 +9,6 @@ use TaskService\Framework\App;
 use TaskService\Models\Customer;
 use TaskService\Models\Task;
 use TaskService\Repositories\TasksRepository;
-use TaskService\Services\EmailService;
 use TaskService\Views\TaskCompletedEmail;
 
 class TasksControllerTest extends TestCase
@@ -21,16 +20,13 @@ class TasksControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        $map = [
-            'getTasksRepository' => $this->createMock(TasksRepository::class),
-            'getEmailService' => $this->createMock(EmailService::class),
-        ];
+        $map = ['getTasksRepository' => $this->createMock(TasksRepository::class)];
+
+        $this->app = $this->createConfiguredMock(App::class, $map);
 
         $this->customer = new Customer();
         $this->customer->id = 41;
         $this->customer->email = 'foo@invalid.local';
-
-        $this->app = $this->createConfiguredMock(App::class, $map);
     }
 
     public function testGetCurrentTasks(): void

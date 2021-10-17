@@ -11,6 +11,8 @@ use TaskService\Repositories\TasksRepository;
 use TaskService\Routes\HttpRoutes;
 use TaskService\Serializer\TasksSerializer;
 use TaskService\Services\EmailService;
+use TaskService\Services\RedisService;
+use TaskService\Services\TaskProcessingService;
 
 /**
  * Application container, provides object initialization
@@ -125,6 +127,16 @@ class App
     public function getEmailService(): EmailService
     {
         return new EmailService();
+    }
+
+    public function getTaskProcessingService(): TaskProcessingService
+    {
+        return new TaskProcessingService($this);
+    }
+
+    public function getRedisService(): RedisService
+    {
+        return new RedisService($this);
     }
 
     public function getTasksController(): TasksController

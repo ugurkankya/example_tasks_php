@@ -15,6 +15,8 @@ use TaskService\Repositories\TasksRepository;
 use TaskService\Routes\HttpRoutes;
 use TaskService\Serializer\TasksSerializer;
 use TaskService\Services\EmailService;
+use TaskService\Services\RedisService;
+use TaskService\Services\TaskProcessingService;
 
 class AppTest extends TestCase
 {
@@ -91,6 +93,18 @@ class AppTest extends TestCase
     {
         $app = new App([], [], [], []);
         $this->assertInstanceOf(EmailService::class, $app->getEmailService());
+    }
+
+    public function testGetTaskProcessingService(): void
+    {
+        $app = new App([], [], [], []);
+        $this->assertInstanceOf(TaskProcessingService::class, $app->getTaskProcessingService());
+    }
+
+    public function testGetRedisService(): void
+    {
+        $app = new App([], [], [], []);
+        $this->assertInstanceOf(RedisService::class, $app->getRedisService());
     }
 
     public function testGetTasksController(): void

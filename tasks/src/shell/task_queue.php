@@ -1,7 +1,6 @@
 <?php
 
 use TaskService\Framework\App;
-use TaskService\Views\TaskCompletedEmail;
 
 error_reporting(E_ALL);
 
@@ -18,34 +17,18 @@ if (!$app->getTasksRepository()->lockCron(basename(__FILE__))) {
 }
 
 $repo = $app->getTasksRepository();
+$taskService = $app->getTaskProcessingService();
+$redisService = $app->getRedisService();
+$serializer = $app->getTasksSerializer();
+
+$stream = $app->getConfig()->redisStreamTasks;
 
 foreach ($repo->getTasksFromQueue() as $task) {
     $repo->updateTaskQueue($task->id);
 
-    // TODO optimize
-    if ($task->completed) {
-        $email = new TaskCompletedEmail();
-        $email->task = $task;
-        $email->subject = sprintf($email->subject, $task->id);
-        $email->to = $task->last_updated_by;
+    $taskService->processTaskUpdate($task);
 
-        $app->getEmailService()->sendEmail($email);
-    }
-
-    // TODO implement stream processor
-
-    // TODO optimize
-    $redis = $app->getRedis();
-    $stream = $app->getConfig()->redisStreamTasks;
-    $serializer = $app->getTasksSerializer();
-
-    // * = auto generated id
-    // @see https://github.com/phpredis/phpredis#xadd
-    // @see https://redis.io/commands/XADD
-    $result = $redis->xAdd($stream, '*', ['data' => json_encode($serializer->serializeTask($task))]);
-    if (empty($result)) {
-        throw new Exception('redis error: ' . ($redis->getLastError() ?? ''));
-    }
+    $redisService->addMessageToStream($stream, $serializer->serializeTask($task));
 
     $repo->deleteTaskQueue($task->id);
 }
