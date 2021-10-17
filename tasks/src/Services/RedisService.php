@@ -18,7 +18,7 @@ class RedisService
      * @see https://github.com/phpredis/phpredis#xadd
      * @see https://redis.io/commands/XADD
      */
-    public function addMessageToStream(string $stream, array $message): void
+    public function addMessageToStream(string $stream, array $message): string
     {
         $redis = $this->app->getRedis();
 
@@ -27,6 +27,8 @@ class RedisService
         if (empty($result)) {
             throw new Exception('redis error: ' . ($redis->getLastError() ?? ''));
         }
+
+        return (string) $result;
     }
 
     /**

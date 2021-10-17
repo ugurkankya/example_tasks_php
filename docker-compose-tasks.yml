@@ -12,6 +12,7 @@ services:
       - backend
     links:
       - mysql
+      - redis
   composer:
     image: example_tasks_php
     cap_drop: [all]
@@ -88,6 +89,7 @@ services:
       - nginx
       - php
       - mysql
+      - redis
       - mailhog
   phploc:
     image: example_tasks_php
