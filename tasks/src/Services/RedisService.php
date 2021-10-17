@@ -31,7 +31,9 @@ class RedisService
 
     /**
      * @see https://github.com/phpredis/phpredis#xAck
+     * @see https://redis.io/commands/XACK
      * @see https://github.com/phpredis/phpredis#xDel
+     * @see https://redis.io/commands/XDEL
      */
     public function removeMessageFromStream(string $stream, string $group, string $messageId): void
     {
@@ -49,8 +51,9 @@ class RedisService
 
     /**
      * @see https://github.com/phpredis/phpredis#xGroup
+     * @see https://redis.io/commands/XGROUP
      * @see https://github.com/phpredis/phpredis#xReadGroup
-     * @see https://github.com/phpredis/phpredis#xReadGroup
+     * @see https://redis.io/commands/XREADGROUP
      */
     public function getMessagesFromStream(string $stream, string $group, string $consumer, int $count): array
     {
@@ -70,11 +73,12 @@ class RedisService
             throw new Exception('redis error: ' . ($redis->getLastError() ?? ''));
         }
 
-        return array_merge($newMessages[$stream] ?? [], $pendingMessages[$stream] ?? []);
+        return array_merge($pendingMessages[$stream] ?? [], $newMessages[$stream] ?? []);
     }
 
     /**
      * @see https://github.com/phpredis/phpredis#xPending
+     * @see https://redis.io/commands/XPENDING
      */
     public function getRetriesFromStream(string $stream, string $group, string $consumer, int $count): array
     {
@@ -85,9 +89,9 @@ class RedisService
             throw new Exception('redis error: ' . ($redis->getLastError() ?? ''));
         }
 
+        // message id => delivery count
         $retries = [];
         foreach ($pendings as $pending) {
-            // message id => delivery count
             $retries[$pending[0]] = $pending[3];
         }
 
