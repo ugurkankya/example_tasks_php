@@ -44,7 +44,7 @@ foreach ($repo->getTasksFromQueue() as $task) {
     // @see https://redis.io/commands/XADD
     $result = $redis->xAdd($stream, '*', ['data' => json_encode($serializer->serializeTask($task))]);
     if (empty($result)) {
-        throw new Exception('redis error: ' . (string) $redis->getLastError());
+        throw new Exception('redis error: ' . ($redis->getLastError() ?? ''));
     }
 
     $repo->deleteTaskQueue($task->id);

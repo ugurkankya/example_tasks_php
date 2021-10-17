@@ -7,7 +7,6 @@
     ignoreInternalFunctionNullReturn="false"
     ignoreInternalFunctionFalseReturn="true"
     findUnusedCode="true"
-    totallyTyped="false"
     reportMixedIssues="false"
     errorLevel="1"
     cacheDirectory="/tmp/psalm"

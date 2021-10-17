@@ -114,6 +114,9 @@ on completion.
     # process task queue
     docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm shell task_queue.php
 
+    # output task stream
+    docker-compose -f docker-compose.yml -f docker-compose-tasks.yml run -u $(id -u) --rm shell task_stream_output.php
+
 Design principles
 
     no full-stack framework (frameworkless), best performance, less complexity, more flexibility, minimum amount of code

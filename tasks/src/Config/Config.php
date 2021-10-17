@@ -15,7 +15,7 @@ class Config
     public string $redisHost = 'redis';
     public int $redisPort = 6379;
     public string $redisStreamTasks = 'tasks';
-    //public string $redisGroup = 'mygroup';
+    public string $redisStreamGroup = 'mygroup';
 
     public string $publicKey = '-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAoCOg744fgP2MAf8BcoHg
