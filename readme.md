@@ -4,7 +4,7 @@ PHP Example Micro Service REST API
 [![Actions Build Status](https://github.com/thomasbley/example_tasks_php/workflows/build/badge.svg?branch=master)](https://github.com/thomasbley/example_tasks_php/actions)
 
 As a registered user, I want to see a list of open tasks for my day, so that I can do them one by one and get notified
-on completion.
+by email on completion.
 
 #### Setup
 
