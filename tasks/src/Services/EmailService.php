@@ -31,7 +31,7 @@ class EmailService
         return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5);
     }
 
-    protected function renderTemplate(Email $email): string
+    public function renderTemplate(Email $email): string
     {
         if (empty($email->template)) {
             throw new InvalidArgumentException('missing template');
