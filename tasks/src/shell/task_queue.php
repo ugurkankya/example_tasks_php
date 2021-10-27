@@ -12,6 +12,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $app = new App([], [], $_SERVER, []);
 
+// lock is held until disconnect (automatically when process ends)
 if (!$app->getTasksRepository()->lockCron(basename(__FILE__))) {
     throw new Exception('lock cron failed');
 }
