@@ -9,7 +9,7 @@ by email on completion.
 #### Setup
 
     # build container
-    docker-compose build --pull --no-cache --parallel
+    docker-compose -f docker-compose.yml -f docker-compose-tasks.yml build --pull --no-cache --parallel
 
     # setup composer
     mkdir -m 0777 tasks/src/vendor
