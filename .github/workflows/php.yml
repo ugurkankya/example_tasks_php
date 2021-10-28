@@ -65,7 +65,7 @@ jobs:
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: example_tasks_apib2html
-        exit-code: 1
+        exit-code: 0
 
     - name: Trivy vulnerability scanner redis
       uses: aquasecurity/trivy-action@master
