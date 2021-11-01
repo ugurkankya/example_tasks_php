@@ -17,6 +17,8 @@ class RedisService
     /**
      * @see https://github.com/phpredis/phpredis#xadd
      * @see https://redis.io/commands/XADD
+     *
+     * @param mixed[] $message
      */
     public function addMessageToStream(string $stream, array $message): string
     {
@@ -56,6 +58,8 @@ class RedisService
      * @see https://redis.io/commands/XGROUP
      * @see https://github.com/phpredis/phpredis#xReadGroup
      * @see https://redis.io/commands/XREADGROUP
+     *
+     * @return mixed[]
      */
     public function getMessagesFromStream(string $stream, string $group, string $consumer, int $count): array
     {
@@ -81,6 +85,8 @@ class RedisService
     /**
      * @see https://github.com/phpredis/phpredis#xPending
      * @see https://redis.io/commands/XPENDING
+     *
+     * @return int[]
      */
     public function getRetriesFromStream(string $stream, string $group, string $consumer, int $count): array
     {

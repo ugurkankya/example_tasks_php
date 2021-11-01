@@ -13,8 +13,7 @@ parameters:
     # PDO::ERRMODE_EXCEPTION is used by default
     - message: '#Cannot call method \w+\(\) on PDOStatement\|false.#'
       path: ./
-  checkMissingIterableValueType: false
   checkFunctionNameCase: true
   checkInternalClassCaseSensitivity: true
-  checkMissingClosureNativeReturnTypehintRule: true
   checkTooWideReturnTypesInProtectedAndPublicMethods: true
+  checkExplicitMixed: false

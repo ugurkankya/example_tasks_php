@@ -110,16 +110,26 @@ class TasksTest extends TestCase
         $this->assertContains($data, $actual);
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function createTask(): array
     {
         return $this->doRequest('POST', '/v1/tasks', ['title' => 'test', 'duedate' => '2020-05-22'], 201);
     }
 
+    /**
+     * @return mixed[]
+     */
     protected function getTask(int $taskId): array
     {
         return $this->doRequest('GET', '/v1/tasks/' . $taskId, [], 200);
     }
 
+    /**
+     * @param mixed[] $params
+     * @return mixed[]
+     */
     protected function doRequest(string $method, string $url, array $params, int $code): array
     {
         $ch = curl_init();

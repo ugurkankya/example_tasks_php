@@ -19,12 +19,27 @@ use TaskService\Services\TaskProcessingService;
  */
 class App
 {
+    /** @var mixed[] */
     protected array $get;
+
+    /** @var mixed[] */
     protected array $post;
+
+    /** @var mixed[] */
     protected array $server;
+
+    /** @var mixed[] */
     protected array $input;
+
+    /** @var mixed[] */
     protected array $container = [];
 
+    /**
+     * @param mixed[] $get
+     * @param mixed[] $post
+     * @param mixed[] $server
+     * @param mixed[]|string $input
+     */
     public function __construct(array $get, array $post, array $server, array | string $input)
     {
         // trim request data

@@ -87,6 +87,7 @@ class TasksRepository
     }
 
     /**
+     * @param int[] $taskIds
      * @return Task[]
      */
     public function getTasks(array $taskIds): array

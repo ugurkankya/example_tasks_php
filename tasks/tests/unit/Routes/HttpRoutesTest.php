@@ -217,6 +217,9 @@ class HttpRoutesTest extends TestCase
         $routes->run();
     }
 
+    /**
+     * @return array{string, string}[]
+     */
     protected function getHeaders(string $method, string $url): array
     {
         return [

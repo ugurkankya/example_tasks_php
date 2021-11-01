@@ -3,7 +3,7 @@
 namespace TaskService\Services;
 
 /**
- * @param array ...$params
+ * @param mixed[] ...$params
  */
 function mail(...$params): bool
 {
@@ -16,5 +16,6 @@ abstract class ServicesMocks
 {
     public static bool $mailReturn = true;
 
+    /** @var mixed[] */
     public static array $mailParams = [];
 }

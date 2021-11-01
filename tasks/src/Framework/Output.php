@@ -4,6 +4,9 @@ namespace TaskService\Framework;
 
 class Output
 {
+    /**
+     * @param mixed[] $data
+     */
     public function json(array $data, int $code, string $location = ''): void
     {
         http_response_code($code);
@@ -22,11 +25,12 @@ class Output
     }
 
     /**
+     * @param mixed[] $data
      * @psalm-taint-escape html
      * @psalm-taint-escape has_quotes
      */
-    protected function escape(array $value): string
+    protected function escape(array $data): string
     {
-        return json_encode($value) ?: '';
+        return json_encode($data) ?: '';
     }
 }

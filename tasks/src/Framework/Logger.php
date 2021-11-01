@@ -11,6 +11,9 @@ class Logger
         $this->app = $app;
     }
 
+    /**
+     * @param mixed[] $event
+     */
     public function log(array $event, int $code): void
     {
         if ($code >= 500 || $code < 200) {

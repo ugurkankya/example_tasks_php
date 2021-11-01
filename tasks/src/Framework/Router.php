@@ -4,6 +4,7 @@ namespace TaskService\Framework;
 
 class Router
 {
+    /** @var array{string, string, callable}[] */
     protected array $routes = [];
 
     public function get(string $pattern, callable $callback): void
