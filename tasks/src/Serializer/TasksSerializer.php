@@ -8,6 +8,7 @@ class TasksSerializer
 {
     /**
      * @param Task[] $tasks
+     *
      * @return array{id: int, title: string, duedate: string, completed: bool}[]
      */
     public function serializeTasks(array $tasks): array
@@ -22,7 +23,6 @@ class TasksSerializer
     }
 
     /**
-     * @param Task $task
      * @return array{id: int, title: string, duedate: string, completed: bool}
      */
     public function serializeTask(Task $task): array

@@ -128,6 +128,7 @@ class TasksTest extends TestCase
 
     /**
      * @param mixed[] $params
+     *
      * @return mixed[]
      */
     protected function doRequest(string $method, string $url, array $params, int $code): array
