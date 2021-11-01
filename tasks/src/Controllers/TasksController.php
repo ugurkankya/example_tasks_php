@@ -12,6 +12,9 @@ class TasksController
 {
     protected App $app;
 
+    /**
+     * passing App allows late initialization (e.g. open db connection only when needed), avoids circular references
+     */
     public function __construct(App $app)
     {
         $this->app = $app;
