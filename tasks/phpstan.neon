@@ -16,4 +16,6 @@ parameters:
   checkFunctionNameCase: true
   checkInternalClassCaseSensitivity: true
   checkTooWideReturnTypesInProtectedAndPublicMethods: true
+  reportStaticMethodSignatures: true
+  reportMaybesInMethodSignatures: true
   checkExplicitMixed: false
